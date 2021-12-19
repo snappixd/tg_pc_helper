@@ -7,6 +7,20 @@ import (
 	"os/exec"
 )
 
+var keyboard = tgbotapi.NewReplyKeyboard(
+	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("Volume +5%"),
+		tgbotapi.NewKeyboardButton("Volume -5%"),
+		tgbotapi.NewKeyboardButton("Off"),
+	),
+	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("Reboot"),
+		tgbotapi.NewKeyboardButton("Sleep"),
+		tgbotapi.NewKeyboardButton("Close windows"),
+	),
+)
+
+
 func main() {
 	bot, err := tgbotapi.NewBotAPI("5087575563:AAH997vLcthQJB3pE3fDRnorl1OhU_DS5Ls")
 	if err != nil {
@@ -33,26 +47,25 @@ func checkUpdates(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 
-		if !update.Message.IsCommand() {
-			continue
-		}
-
 		switch update.Message.Command() {
 		case "start":
-			msg.Text = "Print /help"
+			msg.ReplyMarkup = keyboard
 		case "help":
 			msg.Text = "Є кілька команд: \n/help - наявні команди\n/off - офнути пк\n/sleep - в сон\n/reboot - перезагрузка\n/volume_up - звук +5%\n/volume_down - звук -5%"
-		case "sleep":
+		}
+
+		switch update.Message.Text {
+		case "Sleep":
 			sleep(msg)
-		case "reboot":
+		case "Reboot":
 			reboot(msg)
-		case "off":
+		case "Off":
 			powerOff(msg)
-		case "close_windows":
+		case "Close windows":
 			closeWindows(msg)
-		case "volume_up":
+		case "Volume +5%":
 			volumeUp(msg)
-		case "volume_down":
+		case "Volume -5%":
 			volumeDown(msg)
 		}
 

@@ -12,11 +12,15 @@ var keyboard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
 		tgbotapi.NewKeyboardButton("Volume +5%"),
 		tgbotapi.NewKeyboardButton("Volume -5%"),
-		tgbotapi.NewKeyboardButton("Off"),
+		tgbotapi.NewKeyboardButton("Mute/Unmute"),
 	),
 	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("Off"),
 		tgbotapi.NewKeyboardButton("Reboot"),
 		tgbotapi.NewKeyboardButton("Sleep"),
+	),
+	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("Monitor off"),
 		tgbotapi.NewKeyboardButton("Close windows"),
 	),
 )
@@ -46,28 +50,30 @@ func checkUpdates(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 			continue
 		}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Поки що приймаю тільки команди!\nНажимай кнопочки *)")
 
 		switch update.Message.Command() {
 		case "start":
 			msg.ReplyMarkup = keyboard
-		case "help":
-			msg.Text = "Є кілька команд: \n/help - наявні команди\n/off - офнути пк\n/sleep - в сон\n/reboot - перезагрузка\n/volume_up - звук +5%\n/volume_down - звук -5%"
 		}
 
 		switch update.Message.Text {
 		case "Sleep":
-			sleep(msg)
+			sleep(&msg)
 		case "Reboot":
-			reboot(msg)
+			reboot(&msg)
 		case "Off":
-			powerOff(msg)
+			powerOff(&msg)
 		case "Close windows":
-			closeWindows(msg)
+			closeWindows(&msg)
 		case "Volume +5%":
-			volumeUp(msg)
+			volumeUp(&msg)
 		case "Volume -5%":
-			volumeDown(msg)
+			volumeDown(&msg)
+		case "Mute/Unmute":
+			volumeMute(&msg)
+		case "Monitor off":
+			monitorOff(&msg)
 		}
 
 
@@ -77,7 +83,7 @@ func checkUpdates(updates tgbotapi.UpdatesChannel, bot *tgbotapi.BotAPI) {
 	}
 }
 
-func powerOff(msg tgbotapi.MessageConfig) {
+func powerOff(msg *tgbotapi.MessageConfig) {
 	msg.Text = "Good Bye *) xd"
 
 	cmd := exec.Command("cmd.exe", "/C", "shutdown /t 0", "/s")
@@ -87,7 +93,7 @@ func powerOff(msg tgbotapi.MessageConfig) {
 	}
 }
 
-func sleep(msg tgbotapi.MessageConfig) {
+func sleep(msg *tgbotapi.MessageConfig) {
 	msg.Text = "Good night"
 
 	cmd := exec.Command("cmd.exe", "/C", "shutdown /h")
@@ -97,12 +103,12 @@ func sleep(msg tgbotapi.MessageConfig) {
 	}
 }
 
-func closeWindows(msg tgbotapi.MessageConfig) {
+func closeWindows(msg *tgbotapi.MessageConfig) {
 	msg.Text = "All windows were closed, and in ur room too, xd"
 
 }
 
-func reboot(msg tgbotapi.MessageConfig) {
+func reboot(msg *tgbotapi.MessageConfig) {
 	msg.Text = "Rebooting..."
 
 	cmd := exec.Command("cmd.exe", "/C", "shutdown /r /t 0")
@@ -112,9 +118,8 @@ func reboot(msg tgbotapi.MessageConfig) {
 	}
 }
 
-func volumeUp(msg tgbotapi.MessageConfig) {
-	msg.Text = "Volume +5%"
-
+func volumeUp(msg *tgbotapi.MessageConfig) {
+	msg.Text = "+5%"
 	cmd := exec.Command("cmd.exe", "/C", "nircmd.exe changesysvolume 3300")
 
 	if err := cmd.Run(); err != nil {
@@ -122,12 +127,32 @@ func volumeUp(msg tgbotapi.MessageConfig) {
 	}
 }
 
-func volumeDown(msg tgbotapi.MessageConfig) {
-	msg.Text = "Volume -5%"
+func volumeDown(msg *tgbotapi.MessageConfig) {
+	msg.Text = "-5%"
 
 	cmd := exec.Command("cmd.exe", "/C", "nircmd.exe changesysvolume -3300")
 
 	if err := cmd.Run(); err != nil {
 		fmt.Println("Failed to change volume", err)
+	}
+}
+
+func volumeMute(msg *tgbotapi.MessageConfig) {
+	msg.Text = "Volume muted/unmuted"
+
+	cmd := exec.Command("cmd.exe", "/C", "nircmd.exe mutesysvolume 2")
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Failed to mute volume", err)
+	}
+}
+
+func monitorOff(msg *tgbotapi.MessageConfig) {
+	msg.Text = "Monitor offed"
+
+	cmd := exec.Command("cmd.exe", "/C", "nircmd.exe monitor off")
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Failed to off monitor", err)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"os/exec"
+	"power_off_bot/cfg"
 )
 
 var keyboard = tgbotapi.NewReplyKeyboard(
@@ -22,7 +23,7 @@ var keyboard = tgbotapi.NewReplyKeyboard(
 
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI("5087575563:AAH997vLcthQJB3pE3fDRnorl1OhU_DS5Ls")
+	bot, err := tgbotapi.NewBotAPI(cfg.BotToken)
 	if err != nil {
 		log.Panic(err)
 	}
